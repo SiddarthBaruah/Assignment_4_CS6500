@@ -134,37 +134,60 @@ app.listen(3000, () => {
 
 // client-credential flow
 
-app.get('/auth/client-credentials', (req, res) => { 
-    const options = { 
-      url: 'https://mock-oauth2-server/token', 
-      method: 'POST', 
-      auth: { 
-      user: process.env.mock_client_id, 
-      pass: process.env.mock_client_secret
-      }, 
-    form: { 
-    grant_type: 'client_credentials' 
-    } 
-  }; 
+app.get('/auth/client-credentials', (req, res) => {
+  const options = {
+    url: `https://${process.env.domain_url}/oauth/token`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    json: {
+      grant_type: 'client_credentials',
+      client_id: process.env.auth_client_id ,        
+      client_secret: process.env.auth_client_secret,
+      audience: `https://${process.env.domain_url}/api/v2/`     
+    }
+  };
 
   request(options, (error, response, body) => {
     if (error) {
-      console.error('Request error:', error);
-      return res.status(500).send(`Request error: ${error.code} – ${error.hostname}`);
+      return res.status(500).send(error);
     }
-    console.log('Response status:', response && response.statusCode);
-    console.log('Response body:', body);
-    let payload;
-    try {
-      payload = JSON.parse(body);
-    } catch (parseErr) {
-      console.error('JSON parse error:', parseErr, body);
-      return res.status(500).send(`Invalid JSON response: ${body}`);
+    if (body.error) {
+      return res.status(400).send(body);
     }
-    if (!payload.access_token) {
-      console.warn('No access_token in response payload', payload);
-      return res.status(500).send(`No access_token returned: ${body}`);
-    }
-    res.send(`Access Token: ${payload.access_token}`);
+
+    res.send(`Access Token: ${body.access_token}`);
   });
-}); 
+});
+
+app.get('/auth/password', (req, res) => {
+  const options = {
+    url: `https://${process.env.domain_url}/oauth/token`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: {
+      grant_type: 'password',
+      client_id: 'seW20O2BYxI5Ow2PziHei6j0oP5OyFJ0',
+      client_secret: 'Tef_MXx7vxFr4HPyg4qnmSBJtxCMSRZLwQakUpSfNEOfv2kWWMK2BtUYU8jxAF1i',
+      username: 'ee22b100@smail.iitm.ac.in',
+      password: 'Rajesh_07',
+      audience: `https://${process.env.domain_url}/api/v2/` ,
+      scope: 'openid email profile',
+      realm: 'Username-Password-Authentication'
+    },
+    json: true
+  };
+  
+
+  request(options, (error, response, body) => {
+    if (error) return res.status(500).send(error);
+    if (body.error) return res.status(400).send(body);
+
+    res.send(`Access Token: ${body.access_token}`);
+  });
+});
+
+app.listen(3000, () => {
+
+console.log('Server is running on http://localhost:3000');
+
+});
