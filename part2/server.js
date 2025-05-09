@@ -127,10 +127,6 @@ app.get("/auth/google/implicit/callback", (req, res) => {
 });
 
 
-app.listen(3000, () => {
-  console.log("Server is running on http://localhost:3000");
-});
-
 
 // client-credential flow
 
@@ -166,10 +162,10 @@ app.get('/auth/password', (req, res) => {
     headers: { 'Content-Type': 'application/json' },
     body: {
       grant_type: 'password',
-      client_id: 'seW20O2BYxI5Ow2PziHei6j0oP5OyFJ0',
-      client_secret: 'Tef_MXx7vxFr4HPyg4qnmSBJtxCMSRZLwQakUpSfNEOfv2kWWMK2BtUYU8jxAF1i',
-      username: 'ee22b100@smail.iitm.ac.in',
-      password: 'Rajesh_07',
+      client_id: process.env.password_client_id,
+      client_secret: process.env.password_client_secret,
+      username: process.env.password_user_name,
+      password: process.env.password_password,
       audience: `https://${process.env.domain_url}/api/v2/` ,
       scope: 'openid email profile',
       realm: 'Username-Password-Authentication'
